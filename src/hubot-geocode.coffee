@@ -17,20 +17,21 @@
 #   Milad-Soufastai (Added to NPM)
 
 module.exports = (robot) ->
-  robot.respond /geocode me (.*)/i, (msg) ->
-    query = msg.match[1]
-    geocodeMe msg, encodeURI(query), (text) ->
-      msg.send text
-  robot.respond /where is (.*)/i, (msg) ->
-    query = msg.match[1]
-    geocodeMe msg, encodeURI(query), (text) ->
-      msg.send text
+  robot.respond /geocode me (.*)/i, (res) ->
+    query = res.match[1]
+    geocodeMe res, encodeURI(query), (text) ->
+      res.reply text
+  robot.respond /where is (.*)/i, (res) ->
+    query = res.match[1]
+    geocodeMe res, encodeURI(query), (text) ->
+      res.reply text
 
-geocodeMe = (msg, query, cb) ->
-  msg.http("https://maps.googleapis.com/maps/api/geocode/json?address=#{query}&sensor=false")
+geocodeMe = (res, query, cb) ->
+  res.http("https://maps.googleapis.com/maps/api/geocode/json?address=#{query}&sensor=false")
+    .header('Accept', 'application/json')
     .get() (err, res, body) ->
-    response = JSON.parse(body)
-    return cb "No idea. Tried using a map? https://maps.google.com/" unless response.results?.length
+      response = JSON.parse(body)
+      return cb "No idea. Tried using a map? https://maps.google.com/" unless response.results?.length
 
-    location = response.results[0].geometry.location.lat + "," + response.results[0].geometry.location.lng
-    cb "That's somewhere around " + location + " - https://maps.google.com/maps?q=" + location
+      location = response.results[0].geometry.location.lat + "," + response.results[0].geometry.location.lng
+      cb "That's somewhere around " + location + " - https://maps.google.com/maps?q=" + location
